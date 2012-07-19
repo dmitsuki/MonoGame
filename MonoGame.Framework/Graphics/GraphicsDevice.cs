@@ -1676,17 +1676,9 @@ namespace Microsoft.Xna.Framework.Graphics
         }
         
 #if PSS
-        /// <summary>
-        /// Set the current _graphics VertexBuffer based on _vertexBuffer and _indexBuffer, reusing an existing VertexBuffer if possible
-        /// </summary>
-        private void BindVertexBuffer(bool bindIndexBuffer)
+        internal PssVertexBuffer GetVertexBuffer(VertexFormat[] vertexFormat, int requiredVertexLength, int requiredIndexLength)
         {
-            int requiredVertexLength = _vertexBuffer.VertexCount;
-            int requiredIndexLength = (!bindIndexBuffer || _indexBuffer == null) ? 0 : _indexBuffer.IndexCount;
-            
-            var vertexFormat = _vertexBuffer.VertexDeclaration.GetVertexFormat();
-            
-            int bestMatchIndex = 0;
+            int bestMatchIndex = -1;
             PssVertexBuffer bestMatch = null;
             
             //Search for a good one
@@ -1741,10 +1733,25 @@ namespace Microsoft.Xna.Framework.Graphics
             }
             _usedVertexBuffers.Add(bestMatch);
             
-            bestMatch.SetVertices(_vertexBuffer._vertexArray);
-            if (bindIndexBuffer && requiredIndexLength > 0)
-                bestMatch.SetIndices(_indexBuffer._buffer);
-            _graphics.SetVertexBuffer(0, bestMatch);
+            return bestMatch;
+        }
+        
+        /// <summary>
+        /// Set the current _graphics VertexBuffer based on _vertexBuffer and _indexBuffer, reusing an existing VertexBuffer if possible
+        /// </summary>
+        private void BindVertexBuffer(bool bindIndexBuffer)
+        {
+            int requiredVertexLength = _vertexBuffer.VertexCount;
+            int requiredIndexLength = (!bindIndexBuffer || _indexBuffer == null) ? 0 : _indexBuffer.IndexCount;
+            
+            var vertexFormat = _vertexBuffer.VertexDeclaration.GetVertexFormat();
+            
+            var vertexBuffer = GetVertexBuffer(vertexFormat, requiredVertexLength, requiredIndexLength);
+            
+            vertexBuffer.SetVertices(_vertexBuffer._vertexArray);
+            if (requiredIndexLength > 0)
+                vertexBuffer.SetIndices(_indexBuffer._buffer);
+            _graphics.SetVertexBuffer(0, vertexBuffer);
         }
 #endif
 
