@@ -1682,7 +1682,7 @@ namespace Microsoft.Xna.Framework.Graphics
             PssVertexBuffer bestMatch = null;
             
             //Search for a good one
-            for (int i = 0; i < _availableVertexBuffers.Count; i++)
+            for (int i = _availableVertexBuffers.Count - 1; i >= 0; i--)
             {
                 var buf = _availableVertexBuffers[i];
                 
